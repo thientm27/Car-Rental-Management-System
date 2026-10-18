@@ -1,0 +1,392 @@
+﻿@page
+@model CarRenting.Client.Pages.Customer2.CreateModel
+@{
+    ViewData["Title"] = "Create";
+    string JWTToken = HttpContext.Session.GetString("JWToken");
+    var userID = HttpContext.Session.GetString("UserId");
+    var api = Constants.Api + "Renting";
+}
+
+<h4>Create new renting</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group mt-2">
+            <input type="text" class="form-control" id="CustomerId" hidden />
+        </div>
+        <div class="form-group mt-2">
+            <label for="RentingDate">Renting Date</label>
+            <input type="date" class="form-control" id="RentingDate" readonly />
+            <span id="RentingDate-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-2">
+            <label for="TotalPrice">Total Price</label>
+            <input type="number" class="form-control" id="TotalPrice" readonly />
+            <span id="TotalPrice-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-4">
+            <button id="CreateButton" class="btn btn-primary w-100">Create</button>
+        </div>
+    </div>
+</div>
+
+<br />
+<hr />
+<br />
+<!-- CURRENT RENTING -->
+
+<table class="table" id="table1">
+    <thead>
+        <tr>
+            <th>StartDate</th>
+            <th>EndDate</th>
+            <th>Price</th>
+            <th>CarName</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<br />
+<hr />
+<br />
+
+<!-- FIND CAR -->
+<h4>Find car available</h4>
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group mt-2">
+            <label for="StartDate">Start Date</label>
+            <input type="date" id="StartDate" class="form-control" />
+            <span id="StartDate-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-2">
+            <label for="EndDate">End Date</label>
+            <input type="date" id="EndDate" class="form-control" />
+            <span id="EndDate-error" class="text-danger"></span>
+        </div>
+        <div>
+            <button id="FindCar" class="btn btn-primary w-100">Find Car</button>
+        </div>
+    </div>
+</div>
+
+<br />
+<hr />
+<br />
+
+<table class="table" id="table2">
+    <thead>
+        <tr>
+            <th>CarId</th>
+            <th>CarName</th>
+            <th>CarDescription</th>
+            <th>NumberOfDoors</th>
+            <th>SeatingCapacity</th>
+            <th>FuelType</th>
+            <th>Year</th>
+            <th>CarStatus</th>
+            <th>CarRentingPricePerDay</th>
+            <th>Manufacturer</th>
+            <th>Supplier</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Set RentingDate to the current date
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            var yyyy = today.getFullYear();
+
+            var formattedDate = yyyy + '-' + mm + '-' + dd;
+            $("#RentingDate").val(formattedDate);
+            //////
+
+            var rentingDetails = getRentingDetailsFromSession();
+            populateTable1(rentingDetails);
+
+            $("#FindCar").click(function () {
+                var startDate = $("#StartDate").val();
+                var endDate = $("#EndDate").val();
+                var currentDate = new Date(); // Get the current date
+
+                var currentDateFormatted = currentDate.toISOString().split('T')[0]; // Convert it to 'YYYY-MM-DD' format
+
+                // Check if start date is in the past
+                if (startDate < currentDateFormatted) {
+                    alert("Start date cannot be in the past.");
+                    return;
+                }
+
+                // Check if end date is in the past
+                if (endDate < currentDateFormatted) {
+                    alert("End date cannot be in the past.");
+                    return;
+                }
+
+                // Check if start date and end date are filled in
+                if (!startDate || !endDate) {
+                    alert("Start date and end date are required.");
+                    return; // Exit the function if validation fails
+                }
+
+                // Convert the date strings to Date objects for comparison
+                var startDateObj = new Date(startDate);
+                var endDateObj = new Date(endDate);
+
+                // Check if end date is greater than start date
+                if (endDateObj <= startDateObj) {
+                    alert("End date must be greater than the start date.");
+                    return; // Exit the function if validation fails
+                }
+
+                $("#table2 tbody").html("");
+
+                // Retrieve rentingDetails from the session
+                var rentingDetails = getRentingDetailsFromSession();
+                var ignoreCarTemp = [];
+
+                if (rentingDetails.length > 0) {
+                    // Calculate the date range of the rentingDetails
+                    var startDates = rentingDetails.map(function (detail) { return new Date(detail.StartDate); });
+                    var endDates = rentingDetails.map(function (detail) { return new Date(detail.EndDate); });
+
+                    // Convert the selected start and end dates to Date objects
+                    var selectedStartDate = new Date($("#StartDate").val());
+                    var selectedEndDate = new Date($("#EndDate").val());
+
+                    // Check for overlapping date ranges
+                    for (var i = 0; i < rentingDetails.length; i++) {
+                        if (
+                            (selectedStartDate >= startDates[i] && selectedStartDate <= endDates[i]) ||
+                            (startDates[i] >= selectedStartDate && endDates[i] <= selectedEndDate) ||
+                            (startDates[i] <= selectedEndDate && endDates[i] >= selectedEndDate)
+                        ) {
+                            ignoreCarTemp.push(rentingDetails[i].CarId);
+                        }
+                    }
+                }
+                console.log(ignoreCarTemp);
+                $.ajax({
+                    url: "@api" + "/AvailableCar",
+                    type: "POST",
+                    data: JSON.stringify({
+                        "startDateTime": $("#StartDate").val(),
+                        "endDateTime": $("#EndDate").val(),
+                    }),
+                    contentType: "application/json",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer " + "@JWTToken");
+                    },
+                    success: function (result, status, xhr) {
+                        $.each(result, function (index, value) {
+                            var carIdString = value["carId"].toString(); // Convert carId to a string
+                            if (!ignoreCarTemp.includes(carIdString)) {
+                                // Append rows to table2 only for cars not in the ignoreCarTemp list
+                                $("#table2 tbody").append($("<tr>"));
+                                const appendElement = $("#table2 tbody tr").last();
+
+                                // Add data to the table2 row
+                                appendElement.append($("<td>").html(carIdString)); // Use the converted string
+                                appendElement.append($("<td>").html(value["carName"]));
+                                appendElement.append($("<td>").html(value["carDescription"]));
+                                appendElement.append($("<td>").html(value["numberOfDoors"]));
+                                appendElement.append($("<td>").html(value["seatingCapacity"]));
+                                appendElement.append($("<td>").html(value["fuelType"]));
+                                appendElement.append($("<td>").html(value["year"]));
+                                appendElement.append($("<td>").html(value["carStatus"]));
+                                appendElement.append($("<td>").html(value["carRentingPricePerDay"]));
+                                appendElement.append($("<td>").html(value["manufacturer"]["manufacturerName"]));
+                                appendElement.append($("<td>").html(value["supplier"]["supplierName"]));
+                                appendElement.append($("<td>").html(
+                                    "<button id='AddCar' class='btn btn-primary w-100'>Add Car</button>"
+                                ));
+                            }
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr);
+                    }
+                });
+            });
+
+
+
+            // Event handler for the "AddCar" button
+            $("#table2").on("click", "button#AddCar", function () {
+                // Get the car ID and other details from the selected row
+                var row = $(this).closest("tr");
+                var carId = row.find("td:eq(0)").text(); // Assuming carId is in the first column
+                var carName = row.find("td:eq(1)").text(); // Assuming carName is in the second column
+
+                // Calculate the selected car's price and other details
+                var startDay = new Date($("#StartDate").val());
+                var endDay = new Date($("#EndDate").val());
+
+                // Calculate rental duration in milliseconds
+                var rentalDuration = endDay - startDay;
+
+                // Convert rental duration to days (1 day = 24 hours = 24 * 60 * 60 * 1000 milliseconds)
+                var numberOfDays = Math.ceil(rentalDuration / (24 * 60 * 60 * 1000));
+
+                // Calculate the price using CarRentingPricePerDay
+                var carRentingPricePerDay = parseFloat(row.find("td:eq(8)").text());
+                var price = numberOfDays * carRentingPricePerDay;
+                console.log(numberOfDays);
+                console.log(carRentingPricePerDay);
+                console.log(price);
+
+                // Create a JSON object with the car details
+                var rentingDetail = {
+                    RentingTransactionId: 0,
+                    CarId: carId,
+                    StartDate: startDay,
+                    EndDate: endDay,
+                    Price: price,
+                    CarName: carName
+                };
+
+                // Remove the selected car from the table
+                row.remove();
+
+                // Add the rentingDetail to the cart (you may need to adapt this logic)
+                // Replace this with your own logic to manage the cart on the client side
+                var sessionData = JSON.parse(localStorage.getItem("Cart")) || { Items: [] };
+                sessionData.Items.push(rentingDetail);
+                localStorage.setItem("Cart", JSON.stringify(sessionData));
+                
+                // Display to current cart
+                var rentingDetails = getRentingDetailsFromSession();
+                populateTable1(rentingDetails);
+            });
+
+
+
+            // Function to populate table1 with rentingDetail data and calculate TotalPrice
+            function populateTable1(rentingDetails) {
+                // Get the table body and TotalPrice element
+                var tableBody = $("#table1 tbody");
+                var totalPriceElement = $("#TotalPrice");
+                tableBody.empty(); // Clear existing data in the table
+                var totalPrice = 0; // Initialize total price
+
+                // Loop through the rentingDetail objects and add them to the table
+                rentingDetails.forEach(function (detail) {
+                    var row = $("<tr>");
+                    row.append($("<td>").text(detail.StartDate));
+                    row.append($("<td>").text(detail.EndDate));
+                    row.append($("<td>").text(detail.Price));
+                    row.append($("<td>").text(detail.CarName));
+                    row.append($("<td>").html('<button class="btn btn-danger removeRow">Remove</button>'));
+                    tableBody.append(row);
+
+                    // Update the total price
+                    totalPrice += parseFloat(detail.Price);
+                });
+
+                // Update the TotalPrice element
+                totalPriceElement.val(totalPrice);
+            }
+
+
+            // Event handler to remove a row from table1
+            $("#table1").on("click", ".removeRow", function () {
+                var row = $(this).closest("tr");
+                var index = row.data("index"); // Retrieve the index stored in data attribute
+                // Remove the corresponding rentingDetail from the array
+                var rentingDetails = getRentingDetailsFromSession();
+                rentingDetails.splice(index, 1);
+                // Save the updated array to the session
+                saveRentingDetailsToSession(rentingDetails);
+                // Remove the row from the table
+                row.remove();
+                // Display to current cart
+                var rentingDetails = getRentingDetailsFromSession();
+                populateTable1(rentingDetails);
+            });
+
+
+            function getRentingDetailsFromSession() {
+                // Retrieve the cart data from local storage
+                var sessionData = JSON.parse(localStorage.getItem("Cart")) || { Items: [] };
+                return sessionData.Items;
+            }
+            // Function to save rentingDetail objects to the session
+            function saveRentingDetailsToSession(rentingDetails) {
+                // Retrieve the cart data from local storage
+                var sessionData = JSON.parse(localStorage.getItem("Cart")) || { Items: [] };
+                // Update the Items property with the new rentingDetails
+                sessionData.Items = rentingDetails;
+                // Save the updated data back to local storage
+                localStorage.setItem("Cart", JSON.stringify(sessionData));
+            }
+
+            $("#CreateButton").click(function () {
+                var rentingDate = $("#RentingDate").val();
+                var totalPrice = parseFloat($("#TotalPrice").val());
+                var customerId = @userID;
+                var rentingStatus = 1;
+
+                // Retrieve rentingDetails from the session
+                var rentingDetails = getRentingDetailsFromSession();
+                if (rentingDetails.length === 0) {
+                    alert("Cannot submit. Renting details are empty.");
+                    return;
+                }
+                // Create the data object to send in the request
+                var requestData = {
+                    RentingTransationId: 0,
+                    RentingDate: rentingDate,
+                    TotalPrice: totalPrice,
+                    CustomerId: customerId,
+                    RentingStatus: rentingStatus,
+                    RentingDetails: rentingDetails
+                };
+
+                // Send the POST request to the API
+                $.ajax({
+                    url: "https://localhost:7257/api/Renting",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(requestData),
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer " + "@JWTToken");
+                    },
+                    success: function (data, status, xhr) {
+                        alert("Renting transaction created successfully.");
+                        clearSessionCart();
+                        window.location.href = "./Index";
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Renting transaction created fail. Maybe you car has been rented");
+                        clearSessionCart();
+                        var rentingDetails = getRentingDetailsFromSession();
+                        populateTable1(rentingDetails);
+                    }
+                });
+            });
+
+            // Function to clear the session (Cart)
+            function clearSessionCart() {
+                // Assuming you are using Local Storage for session data
+                localStorage.removeItem("Cart");
+                // If you are using a different method for session storage, adjust this part accordingly.
+            }
+        });
+
+
+
+      
+
+    </script>
+}
+

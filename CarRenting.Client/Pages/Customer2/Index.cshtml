@@ -1,0 +1,66 @@
+﻿
+@page
+@model CarRenting.Client.Pages.Customer2.IndexModel
+@{
+    ViewData["Title"] = "List Renting Transactions";
+    var jwt = HttpContext.Session.GetString("JWToken");
+    var userID = HttpContext.Session.GetString("UserId");
+    var api = Constants.Api + "Renting";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Rent New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Renting Date</th>
+            <th>Total Price</th>
+            <th>Customer Id</th>
+            <th>Renting Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            ShowAllRentingTransactions();
+
+            function ShowAllRentingTransactions() {
+                $("table tbody").html("");
+                $.ajax({
+                    url: "@api" + "/" + "@userID",
+                    type: "GET",
+                    contentType: "application/json",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer " + "@jwt");
+                    },
+                    success: function (result, status, xhr) {
+                        $.each(result, function (index, value) {
+                            $("tbody").append($("<tr>"));
+                            const appendElement = $("tbody tr").last();
+                            appendElement.append($("<td>").html(value["rentingTransationId"]));
+                            appendElement.append($("<td>").html(value["rentingDate"]));
+                            appendElement.append($("<td>").html(value["totalPrice"]));
+                            appendElement.append($("<td>").html(value["customerId"]));
+                            appendElement.append($("<td>").html(value["rentingStatus"]));
+                            appendElement.append($("<td>").html(
+                                "<a class='btn btn-danger ms-2' href='/Customer2/Delete?id=" + value["rentingTransationId"] + "'>Delete</a>"
+                            ));
+                        })
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr);
+                    }
+                })
+            }
+        })
+    </script>
+}

@@ -1,0 +1,86 @@
+﻿@page
+@model CarRenting.Client.Pages.Admin2.CarInformation.IndexModel
+@{
+    ViewData["Title"] = "List Car";
+    var jwt = HttpContext.Session.GetString("JWToken");
+    var api = Constants.Api + "CarInformation";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>CarId</th>
+            <th>CarName</th>
+            <th>
+                CarDescription
+            </th>
+            <th>
+                NumberOfDoors
+            </th>
+            <th>
+                SeatingCapacity
+            </th>
+            <th>
+                FuelType
+            </th>
+            <th> Year </th>
+            <th>CarStatus</th>
+            <th>CarRentingPricePerDay</th>
+            <th>Manufacturer</th>
+            <th>Supplier</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            ShowAllFlowerBouquets();
+
+            function ShowAllFlowerBouquets() {
+                $("table tbody").html("");
+                $.ajax({
+                    url: "@api",
+                    type: "GET",
+                    contentType: "application/json",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer " + "@jwt");
+                    },
+                    success: function (result, status, xhr) {
+                        $.each(result, function (index, value) {
+                            $("tbody").append($("<tr>"));
+                            const appendElement = $("tbody tr").last();
+                            appendElement.append($("<td>").html(value["carId"]));
+                            appendElement.append($("<td>").html(value["carName"]));
+                            appendElement.append($("<td>").html(value["carDescription"]));
+                            appendElement.append($("<td>").html(value["numberOfDoors"]));
+                            appendElement.append($("<td>").html(value["seatingCapacity"]));
+                            appendElement.append($("<td>").html(value["fuelType"]));
+                            appendElement.append($("<td>").html(value["year"]));
+                            appendElement.append($("<td>").html(value["carStatus"]));
+                            appendElement.append($("<td>").html(value["carRentingPricePerDay"]));
+                            appendElement.append($("<td>").html(value["manufacturer"]["manufacturerName"])); // Corrected property access
+                            appendElement.append($("<td>").html(value["supplier"]["supplierName"])); // Corrected property access
+                            appendElement.append($("<td>").html(
+                                "<a class='btn btn-warning' href='/Admin2/CarInformation/Edit?id=" + value["carId"] + "'>Edit</a>" +
+                                "<a class='btn btn-danger ms-2' href='/Admin2/CarInformation/Delete?id=" + value["carId"] + "'>Delete</a>"
+                            ));
+                        })
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr);
+                    }
+                })
+            }
+        })
+    </script>
+}

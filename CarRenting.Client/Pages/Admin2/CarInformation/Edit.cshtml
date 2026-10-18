@@ -1,0 +1,264 @@
+﻿@page
+@model CarRenting.Client.Pages.Admin2.CarInformation.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+    string JWTToken = HttpContext.Session.GetString("JWToken");
+    var api = Constants.Api;
+
+}
+
+<h1>Edit</h1>
+
+<h4>Customer</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group mt-2">
+            <input type="text" class="form-control" id="CarId" hidden />
+        </div>
+        <div class="form-group mt-2">
+            <label for="CarName">Name</label>
+            <input type="text" class="form-control" id="CarName" required />
+            <span id="CarName-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-2">
+            <label for="CarDescription">CarDescription</label>
+            <input type="text" class="form-control" id="CarDescription" required />
+            <span id="CarDescription-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-2">
+            <label for="NumberOfDoors">NumberOfDoors</label>
+            <input type="number" min="1" class="form-control" id="NumberOfDoors" required />
+            <span id="NumberOfDoors-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-2">
+            <label for="SeatingCapacity">SeatingCapacity</label>
+            <input type="number" min="1" id="SeatingCapacity" class="form-control" required />
+            <span id="SeatingCapacity-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-2">
+            <label for="FuelType">FuelType</label>
+            <input type="text" class="form-control" id="FuelType" required />
+            <span id="FuelType-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-2">
+            <label for="Year">Year</label>
+            <input type="number" max="2023" class="form-control" id="Year" required />
+            <span id="Year-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-2">
+            <label for="CarStatus">CarStatus</label>
+            <input type="text" min="0" max="4" class="form-control" id="CarStatus" required />
+            <span id="CarStatus-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-2">
+            <label for="CarRentingPricePerDay">CarRentingPricePerDay</label>
+            <input type="text" min="1"  class="form-control" id="CarRentingPricePerDay" required />
+            <span id="CarRentingPricePerDay-error" class="text-danger"></span>
+        </div>
+            <div class="form-group mt-2">
+            <label for="Manufacturer">Manufacturer</label>
+            <select class="form-select" id="Manufacturer"></select>
+            <span id="Manufacturer-error" class="text-danger"></span>
+            </div>
+        <div class="form-group mt-2">
+            <label for="Supplier">Supplier</label>
+            <select class="form-select" id="Supplier"></select>
+            <span id="Supplier-error" class="text-danger"></span>
+        </div>
+        <div class="form-group mt-4">
+            <button id="EditButton" class="btn btn-primary w-100">Edit</button>
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+
+@section scripts {
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            const params = (new URL(document.location)).searchParams;
+            const id = params.get("id");
+
+            getAllSupplier();
+            getAllManufactor();
+
+            function getAllSupplier() {
+                $.ajax({
+                    url: "@api" + "Supplier",
+                    type: "GET",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer " + "@JWTToken");
+                    },
+                    success: function (result, status, xhr) {
+                        $.each(result, function (key, item) {
+                            $("#Supplier").append("<option value='" + item["supplierId"] + "'>" + item["supplierName"] + "</option>");
+                        })
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr)
+                    }
+                })
+            }
+
+            function getAllManufactor() {
+                $.ajax({
+                    url: "@api" + "Manufacture",
+                    type: "GET",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer " + "@JWTToken");
+                    },
+                    success: function (result, status, xhr) {
+                        $.each(result, function (key, item) {
+                            $("#Manufacturer").append("<option value='" + item["manufacturerId"] + "'>" + item["manufacturerName"] + "</option>");
+                        })
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr)
+                    }
+                })
+            }
+
+
+            GetCar();
+
+            function GetCar() {
+                $.ajax({
+                    url: "@api" + "CarInformation/" + id,
+                    type: "GET",
+                    dataType: "json",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer " + "@JWTToken");
+                    },
+                    success: function (result) {
+                        $("#CarId").val(result.carId);
+                        $("#CarName").val(result.carName);
+                        $("#CarDescription").val(result.carDescription);
+                        $("#NumberOfDoors").val(result.numberOfDoors);
+                        $("#SeatingCapacity").val(result.seatingCapacity);
+                        $("#FuelType").val(result.fuelType);
+                        $("#Year").val(result.year);
+                        $("#CarStatus").val(result.carStatus);
+                        $("#CarRentingPricePerDay").val(result.carRentingPricePerDay);
+                        $("#Manufacturer").val(result.manufacturer.manufacturerId);
+                        $("#Supplier").val(result.supplier.supplierId);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                })
+            }
+
+
+
+            function formValidation() {
+                var isValid = true;
+                if ($("#CarName").val().trim() === "") {
+                    $("#CarName-error").html("Car Name is required");
+                    isValid = false;
+                } else {
+                    $("#CarName-error").html("");
+                }
+
+                if ($("#NumberOfDoors").val() === "") {
+                    $("#NumberOfDoors-error").html("Number of Doors is required");
+                    isValid = false;
+                } else if ($("#NumberOfDoors").val() <= 0) {
+                    $("#NumberOfDoors-error").html("Number of Doors must be greater than 0");
+                    isValid = false;
+                } else {
+                    $("#NumberOfDoors-error").html("");
+                }
+
+                if ($("#SeatingCapacity").val() === "") {
+                    $("#SeatingCapacity-error").html("Seating Capacity is required");
+                    isValid = false;
+                } else if ($("#SeatingCapacity").val() <= 0) {
+                    $("#SeatingCapacity-error").html("Seating Capacity must be greater than 0");
+                    isValid = false;
+                } else {
+                    $("#SeatingCapacity-error").html("");
+                }
+
+                if ($("#FuelType").val().trim() === "") {
+                    $("#FuelType-error").html("Fuel Type is required");
+                    isValid = false;
+                } else {
+                    $("#FuelType-error").html("");
+                }
+
+                if ($("#Year").val() === "") {
+                    $("#Year-error").html("Year is required");
+                    isValid = false;
+                } else if ($("#Year").val() < 1900 || $("#Year").val() > 2023) {
+                    $("#Year-error").html("Year must be between 1900 and 2023");
+                    return;
+                } else {
+                    $("#Year-error").html("");
+                }
+
+                if ($("#CarStatus").val() === "") {
+                    $("#CarStatus-error").html("Car Status is required");
+                    isValid = false;
+                } else if ($("#CarStatus").val() < 0 || $("#CarStatus").val() > 4) {
+                    $("#CarStatus-error").html("Car Status must be between 0 and 4");
+                    return;
+                } else {
+                    $("#CarStatus-error").html("");
+                }
+
+                if ($("#CarRentingPricePerDay").val() === "") {
+                    $("#CarRentingPricePerDay-error").html("Car Renting Price Per Day is required");
+                    isValid = false;
+                } else if ($("#CarRentingPricePerDay").val() <= 0) {
+                    $("#CarRentingPricePerDay-error").html("Car Renting Price Per Day must be greater than 0");
+                    return;
+                } else {
+                    $("#CarRentingPricePerDay-error").html("");
+                }
+
+                return isValid;
+            }
+
+            $("#EditButton").click(function () {
+                if (!formValidation()) {
+                    return;
+                }
+                $.ajax({
+                    url: "@api" + "CarInformation/" + id,
+                    type: "PUT",
+                    data: JSON.stringify({
+                        "carId": $("#CarId").val(),
+                        "carName": $("#CarName").val(),
+                        "carDescription": $("#CarDescription").val(),
+                        "numberOfDoors": $("#NumberOfDoors").val(),
+                        "seatingCapacity": $("#SeatingCapacity").val(),
+                        "fuelType": $("#FuelType").val(),
+                        "year": $("#Year").val(),
+                        "carStatus": $("#CarStatus").val(),
+                        "carRentingPricePerDay": $("#CarRentingPricePerDay").val(),
+                        "manufacturerId": $("#Manufacturer").val(),
+                        "supplierId": $("#Supplier").val(),
+                    }),
+
+                    contentType: "application/json",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer " + "@JWTToken");
+                    },
+                    success: function (result, status, xhr) {
+                        window.location.href = "./Index";
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr)
+                    }
+                })
+            })
+        })
+    </script>
+}
