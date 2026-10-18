@@ -38,7 +38,7 @@ namespace FlowerBouquetWebAPI.Controllers
                 {
                     new Claim(ClaimTypes.Email,admin.Email),
                     new Claim(ClaimTypes.Name,"Admin"),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Jti, jti),
                     new Claim(ClaimTypes.Role, UserRoles.Admin)
                 };
 
@@ -96,7 +96,7 @@ namespace FlowerBouquetWebAPI.Controllers
             var token = new JwtSecurityToken(
                 issuer: _appSettings.Issuer,
                 audience: _appSettings.Audience,
-                expires: DateTime.Now.AddHours(3),
+                expires: DateTime.UtcNow.AddMinutes(_appSettings.AccessTokenExpiration),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                 );
