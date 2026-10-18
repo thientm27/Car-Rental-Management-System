@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNetEnv" Version="3.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.23" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.23" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.3" />
@@ -17,6 +18,12 @@
     <ProjectReference Include="..\CarRenting.BusinessObjects\CarRenting.BusinessObjects.csproj" />
     <ProjectReference Include="..\CarRenting.DTOs\CarRenting.DTOs.csproj" />
     <ProjectReference Include="..\CarRenting.Repositories\CarRenting.Repositories.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update=".env">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

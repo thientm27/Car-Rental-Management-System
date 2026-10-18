@@ -33,6 +33,7 @@ namespace FlowerBouquetWebAPI.Controllers
         {
             if (model.Email.ToLower().Equals(admin.Email.ToLower()) && model.Password.Equals(admin.Password))
             {
+                var jti = Guid.NewGuid().ToString();
                 var authClaims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Email,admin.Email),
@@ -41,6 +42,7 @@ namespace FlowerBouquetWebAPI.Controllers
                     new Claim(ClaimTypes.Role, UserRoles.Admin)
                 };
 
+                AdminSessionStore.CurrentJti = jti;
                 var token = GetToken(authClaims);
 
                 var reponse = new LoginResponse()

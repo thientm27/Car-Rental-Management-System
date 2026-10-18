@@ -1,5 +1,6 @@
 ﻿using CarRenting.API.Models;
 using CarRenting.BusinessObjects.Models;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Routing;
@@ -7,8 +8,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
+DotNetEnv.Env.TraversePath().Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // Get key
@@ -31,12 +35,11 @@ builder.Services.ConfigureSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Enter the Bearer Authorization string as following: `Bearer Generated-JWT-Token`",
+        Description = "Nhập token JWT (không cần thêm 'Bearer ' phía trước).",
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -48,9 +51,6 @@ builder.Services.ConfigureSwaggerGen(c =>
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header,
              },
              new string[] {}
         }
@@ -83,6 +83,20 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes), // thuật toán đối xứng
 
             ClockSkew = TimeSpan.Zero
+        };
+        opt.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                var role = context.Principal?.FindFirst(ClaimTypes.Role)?.Value;
+                var jti = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+
+                if (role == UserRoles.Admin && jti != AdminSessionStore.CurrentJti)
+                {
+                    context.Fail("Phiên đăng nhập admin đã bị thay thế.");
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 builder.Services.AddCors(option =>

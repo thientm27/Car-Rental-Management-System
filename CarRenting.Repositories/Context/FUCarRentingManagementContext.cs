@@ -1,7 +1,6 @@
 ﻿
 using CarRenting.BusinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace CarRenting.Repositories.Context
 {
@@ -33,12 +32,10 @@ namespace CarRenting.Repositories.Context
         }
         private string GetConnectionString()
         {
-            IConfiguration config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", true, true)
-                .Build();
-            var strConn = config["ConnectionString"];
-            return strConn;
+            var conn = Environment.GetEnvironmentVariable("ConnectionString");
+            if (string.IsNullOrWhiteSpace(conn))
+                throw new InvalidOperationException("Thiếu ConnectionString trong file .env");
+            return conn;
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

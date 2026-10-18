@@ -1,6 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using CarRenting.Repositories.Repo;
+using DotNetEnv;
+
+DotNetEnv.Env.TraversePath().Load();
 
 Console.WriteLine("Hello, World!");
 CustomerRepo customerRepo = new CustomerRepo();
