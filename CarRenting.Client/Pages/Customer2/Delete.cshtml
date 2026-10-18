@@ -6,38 +6,35 @@
     var api = Constants.Api + "Renting";
 }
 
-<div class="container-fluid">
-    <div class="d-flex align-items-center justify-content-between">
-        <h2>
-            Are you sure to delete this Renting Transaction?
-        </h2>
-        <a href="./Index" class="btn btn-dark">Back</a>
-    </div>
-    <hr />
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+        <div class="card-clean">
+            <h4 class="mb-1">Delete Renting Transaction</h4>
+            <p class="text-muted mb-0">Are you sure to delete this Renting Transaction?</p>
+            <hr />
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="form-group mt-2">
-                <input type="text" class="form-control" id="RentingTransationId" hidden />
-            </div>
-            <div class="form-group mt-2">
-                <label for="RentingDate">Renting Date</label>
+            <input type="text" class="form-control" id="RentingTransationId" hidden />
+
+            <div class="mb-3">
+                <label class="form-label" for="RentingDate">Renting Date</label>
                 <input type="date" class="form-control" id="RentingDate" readonly />
             </div>
-            <div class="form-group mt-2">
-                <label for="TotalPrice">Total Price</label>
+            <div class="mb-3">
+                <label class="form-label" for="TotalPrice">Total Price</label>
                 <input type="text" class="form-control" id="TotalPrice" readonly />
             </div>
-            <div class="form-group mt-2">
-                <label for="CustomerId">Customer Id</label>
+            <div class="mb-3">
+                <label class="form-label" for="CustomerId">Customer Id</label>
                 <input type="text" class="form-control" id="CustomerId" readonly />
             </div>
-            <div class="form-group mt-2">
-                <label for="RentingStatus">Renting Status</label>
+            <div class="mb-3">
+                <label class="form-label" for="RentingStatus">Renting Status</label>
                 <input type="number" class="form-control" id="RentingStatus" readonly />
             </div>
-            <div class="form-group mt-4">
-                <button id="DeleteButton" class="btn btn-danger w-100">Yes. Delete!</button>
+
+            <div class="d-flex gap-2 mt-4">
+                <a href="./Index" class="btn btn-outline-secondary flex-fill">Back</a>
+                <button id="DeleteButton" class="btn btn-danger flex-fill">Yes. Delete!</button>
             </div>
         </div>
     </div>

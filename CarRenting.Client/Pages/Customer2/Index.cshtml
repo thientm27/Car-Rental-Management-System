@@ -1,5 +1,4 @@
-﻿
-@page
+﻿@page
 @model CarRenting.Client.Pages.Customer2.IndexModel
 @{
     ViewData["Title"] = "List Renting Transactions";
@@ -8,25 +7,29 @@
     var api = Constants.Api + "Renting";
 }
 
-<h1>Index</h1>
+<div class="page-header">
+    <h2>Renting Transactions</h2>
+    <a asp-page="Create" class="btn btn-primary">+ Rent New</a>
+</div>
 
-<p>
-    <a asp-page="Create">Rent New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Renting Date</th>
-            <th>Total Price</th>
-            <th>Customer Id</th>
-            <th>Renting Status</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+<div class="card-clean p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-clean table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Renting Date</th>
+                    <th>Total Price</th>
+                    <th>Customer Id</th>
+                    <th>Renting Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 @section scripts {
     <script type="text/javascript">

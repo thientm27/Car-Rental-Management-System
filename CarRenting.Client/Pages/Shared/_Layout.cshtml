@@ -8,18 +8,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CarRenting.Client</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/CarRenting.Client.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CarRenting.Client.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-light bg-white shadow-sm sticky-top">
             <div class="container">
-                <a class="navbar-brand" asp-page="/Login">CarRenting.Client</a>
+                <a class="navbar-brand fw-bold text-primary" asp-page="/Login">CarRenting.Client</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -29,38 +29,38 @@
                         @if (isAdmin)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Admin2/Customer/Index">Quản lý khách hàng</a>
+                                <a class="nav-link" asp-page="/Admin2/Customer/Index">Quản lý khách hàng</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Admin2/CarInformation/Index">Quản lý xe</a>
+                                <a class="nav-link" asp-page="/Admin2/CarInformation/Index">Quản lý xe</a>
                             </li>
                         }
                         @if (isCustomer)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Customer2/Index">Đơn thuê của tôi</a>
+                                <a class="nav-link" asp-page="/Customer2/Index">Đơn thuê của tôi</a>
                             </li>
                         }
                     </ul>
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav align-items-sm-center">
                         @if (isLoggedIn)
                         {
                             <li class="nav-item">
-                                <span class="nav-link text-dark">Xin chào, @userName</span>
+                                <span class="nav-link text-muted">Xin chào, <strong class="text-dark">@userName</strong></span>
                             </li>
                             <li class="nav-item">
                                 <form method="post" asp-page="/Login" asp-page-handler="LogOut">
-                                    <button type="submit" class="btn btn-link nav-link text-dark">Đăng xuất</button>
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm ms-sm-2">Đăng xuất</button>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Login">Đăng nhập</a>
+                                <a class="nav-link" asp-page="/Login">Đăng nhập</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Register">Đăng ký</a>
+                                <a class="btn btn-primary btn-sm ms-sm-2" asp-page="/Register">Đăng ký</a>
                             </li>
                         }
                     </ul>
@@ -68,22 +68,23 @@
             </div>
         </nav>
     </header>
-<div class="container">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
-</div>
 
-<footer class="border-top footer text-muted">
     <div class="container">
-        &copy; 2023 - CarRenting.Client - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        <main role="main" class="py-2">
+            @RenderBody()
+        </main>
     </div>
-</footer>
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
+    <footer class="border-top mt-5 py-3 text-center text-muted small">
+        <div class="container">
+            &copy; 2023 - CarRenting.Client &middot; <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
 
-@await RenderSectionAsync("Scripts", required: false)
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

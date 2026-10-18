@@ -1,18 +1,68 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+﻿/* Nền và font chung */
 body {
-  margin-bottom: 60px;
+    background-color: #f4f6f9;
+}
+
+/* Tiêu đề trang */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1rem 0 1.5rem;
+}
+
+    .page-header h2 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+/* Card dùng chung */
+.card-clean {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: .75rem;
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+    .card-clean h5 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+/* Bảng */
+.table-clean thead th {
+    background: #f8f9fb;
+    font-size: .8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #6c757d;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.table-clean td,
+.table-clean th {
+    padding: .75rem 1rem;
+}
+
+/* Ô đọc-only trông rõ là không sửa được */
+.form-control:read-only {
+    background-color: #f8f9fb;
+}
+
+/* Bo góc nhẹ cho nút và input */
+.btn,
+.form-control {
+    border-radius: .5rem;
+}
+
+/* Trên màn hình nhỏ, bỏ card nền để gọn hơn */
+@media (max-width: 575.98px) {
+    .card-clean {
+        padding: 1rem;
+    }
 }
